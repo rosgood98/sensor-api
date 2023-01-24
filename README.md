@@ -11,7 +11,12 @@ This project creates a JSON REST API for storing and querying sensor metadata. E
           
 [This project was created in Go and made use of the Gin Web Framework.](https://github.com/gin-gonic/gin)
 
-## Build and Run Locally
+## Install, Build, and Run Locally
+
+[To download Go.](https://go.dev/doc/install)
+
+To check if go is installed:
+`go version`
 
 To run:
 `go run main.go`
