@@ -18,6 +18,9 @@ This project creates a JSON REST API for storing and querying sensor metadata. E
 To check if go is installed:
 `go version`
 
+To install `gin`:
+`go get -u github.com/gin-gonic/gin`
+
 To run:
 `go run main.go`
 
