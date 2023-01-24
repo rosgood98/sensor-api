@@ -3,8 +3,8 @@ package main
 import (
     "net/http"
     "github.com/gin-gonic/gin"
-   // "strconv"
-    //"fmt"
+    "math"
+    "strconv"
 )
 
 // album represents data about a record album.
@@ -45,7 +45,7 @@ func postSensors(c *gin.Context) {
 func updateSensor(c *gin.Context) {
     var sensor sensor
     if err := c.ShouldBindJSON(&sensor); err != nil {
-        c.JSON(400, gin.H{"error": "Invalid request body"})
+        c.JSON(http.StatusNotFound, gin.H{"error": "Invalid request body"})
         return
     }
 
@@ -61,13 +61,40 @@ func updateSensor(c *gin.Context) {
     }
 
     if found {
-        c.JSON(200, gin.H{"success": "Sensor updated"})
+        c.JSON(http.StatusOK, gin.H{"success": "Sensor updated"})
     } else {
-        c.JSON(404, gin.H{"error": "Sensor not found"})
+        c.JSON(http.StatusNotFound, gin.H{"error": "Sensor not found"})
     }
 }
 
+func getSensorByLocation(location float64) (sensor, error) {
+    var closestSensor sensor
+    var minDist float64
 
+    for _, sensor := range sensors {
+        distance := math.Abs(sensor.Location - location)
+        if minDist == 0 || distance < minDist {
+            closestSensor = sensor
+            minDist = distance
+        } 
+    }
+
+    return closestSensor, nil
+}
+
+func sensorHandler(c *gin.Context) {
+    location, err := strconv.ParseFloat(c.Param("location"), 64)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid location"})
+        return
+    }
+    closestSensor, err := getSensorByLocation(location)
+    if err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+        return
+    }
+    c.JSON(http.StatusOK, closestSensor)
+}
 
 // getSensorByName locates the album whose Name value matches the name
 // parameter sent by the client, then returns that album as a response.
@@ -88,7 +115,8 @@ func getSensorByName(c *gin.Context) {
 func main() {
     router := gin.Default()
     router.GET("/sensors", getSensors)
-	router.GET("/sensors/:name", getSensorByName)
+	router.GET("/sensors/name/:name", getSensorByName)
+    router.GET("/sensors/location/:location", sensorHandler)
 	router.POST("/sensors", postSensors)
 	router.PATCH("/sensors/:name", updateSensor)
     router.Run("localhost:8080")
