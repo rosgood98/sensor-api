@@ -30,7 +30,7 @@ To GET all sensors:
 `curl http://localhost:8080/sensors`
 
 To GET a specific sensor by name:
-`curl http://localhost:8080/sensors/NAME`
+`curl http://localhost:8080/sensors/name/NAME`
 
 To POST a sensor:
 `curl -X POST -H "Content-Type: application/json" -d '{"name": "NAME", "tag": ["tag1"], "location": LOCATION}' http://localhost:8080/sensors`
@@ -38,3 +38,6 @@ To POST a sensor:
 To PATCH a sensor:
 `curl -X PATCH -H "Content-Type: application/json" -d '{"name": "NAME", "tag": ["tag1", "tag2"], "location": LOCATION}' http://local
 host:8080/sensors/NAME`
+
+To GET a sensor by closest location:
+`curl http://localhost:8080/sensors/location/LOCATION`
