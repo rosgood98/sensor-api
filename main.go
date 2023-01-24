@@ -3,22 +3,22 @@ package main
 import (
     "net/http"
     "github.com/gin-gonic/gin"
-	"strconv"
-	"fmt"
+   // "strconv"
+    //"fmt"
 )
 
 // album represents data about a record album.
 type sensor struct {
     Name     string  `json:"name"`
-	Tag		 string `json:"tag"`
+	Tag		 []string `json:"tag"`
 	Location float64  `json:"location"`
 }
 
 // sensors slice to seed record album data.
 var sensors = []sensor{
-    {Name: "Sensor_1", Tag: "This is a tag", Location: 30.00},
-    {Name: "Sensor_2", Tag: "This is a tag_2", Location: 60.00},
-    {Name: "Sensor_3", Tag: "This is a tag_3", Location: 90.00},
+    {Name: "Sensor_1", Tag: []string{"tag1"}, Location: 30.00},
+    {Name: "Sensor_2", Tag: []string{"tag_2"}, Location: 60.00},
+    {Name: "Sensor_3", Tag: []string{"tag1", "tag2"}, Location: 90.00},
 }
 
 // getSensor responds with the list of all sensors as JSON.
@@ -36,31 +36,37 @@ func postSensors(c *gin.Context) {
         return
     }
 
-    // Add the new album to the slice.
     sensors = append(sensors, newSensor)
     c.IndentedJSON(http.StatusCreated, newSensor)
 }
 
+// updateSensor takes a JSON and updates an already stored sensor's information with the provided
+// information
 func updateSensor(c *gin.Context) {
-	name := c.Param("name")
-	updatedTag := c.Param("tag")
-    updatedLocation := c.Param("location")
+    var sensor sensor
+    if err := c.ShouldBindJSON(&sensor); err != nil {
+        c.JSON(400, gin.H{"error": "Invalid request body"})
+        return
+    }
 
-	f1, _ := strconv.ParseFloat(updatedLocation, 64)
+    // check if sensor with given name exists
+    found := false
+    for i := range sensors {
+        if sensors[i].Name == sensor.Name {
+            sensors[i].Location = sensor.Location
+            sensors[i].Tag = sensor.Tag
+            found = true
+            break
+        }
+    }
 
-	fmt.Println(updatedLocation)
-	fmt.Println(updatedTag)
-
-	for i := range sensors {
-		if sensors[i].Name == name {
-			sensors[i].Location = f1
-			sensors[i].Tag = updatedTag
-			c.JSON(http.StatusOK, gin.H{"success": "sensor updated"})
-			return
-		}
-		c.JSON(http.StatusNotFound, gin.H{"error": "sensor not found"})
-	}
+    if found {
+        c.JSON(200, gin.H{"success": "Sensor updated"})
+    } else {
+        c.JSON(404, gin.H{"error": "Sensor not found"})
+    }
 }
+
 
 
 // getSensorByName locates the album whose Name value matches the name
