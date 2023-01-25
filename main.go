@@ -61,9 +61,9 @@ func updateSensor(c *gin.Context) {
     }
 
     if found {
-        c.JSON(http.StatusOK, gin.H{"success": "Sensor updated"})
+        c.IndentedJSON(http.StatusOK, gin.H{"success": "Sensor updated"})
     } else {
-        c.JSON(http.StatusNotFound, gin.H{"error": "Sensor not found"})
+        c.IndentedJSON(http.StatusNotFound, gin.H{"error": "Sensor not found"})
     }
 }
 
@@ -85,15 +85,15 @@ func getSensorByLocation(location float64) (sensor, error) {
 func sensorHandler(c *gin.Context) {
     location, err := strconv.ParseFloat(c.Param("location"), 64)
     if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid location"})
+        c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid location"})
         return
     }
     closestSensor, err := getSensorByLocation(location)
     if err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+        c.IndentedJSON(http.StatusNotFound, gin.H{"error": err.Error()})
         return
     }
-    c.JSON(http.StatusOK, closestSensor)
+    c.IndentedJSON(http.StatusOK, closestSensor)
 }
 
 // getSensorByName locates the album whose Name value matches the name
