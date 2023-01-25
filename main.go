@@ -105,7 +105,7 @@ func getSensorByLocation(location float64) (sensor, error) {
 // sensorHandler is used with getSensorByLocation to handle a GET request
 // specific to handling GET request, validating parameters, and calling getSensorByLocation
 func sensorHandler(c *gin.Context) {
-    // stores location from JSON payload as a string
+    // stores location from JSON payload as a float64
     location, err := strconv.ParseFloat(c.Param("location"), 64)
 
     if err != nil {
