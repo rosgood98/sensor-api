@@ -88,7 +88,9 @@ func updateSensor(c *gin.Context) {
 // used with sensorHandler to handle a GET request
 func getSensorByLocation(xloc float64, yloc float64) (sensor, error) {
     var closestSensor sensor
+    
     var minDist float64
+    minDist = distance(sensors[0].XLoc, sensors[0].YLoc, xloc, yloc)
 
     for _, sensor := range sensors {
         // calculates the distance between each sensor in the slice and the location
