@@ -13,15 +13,15 @@ import (
 type sensor struct {
     Name     string     `json:"name"`
 	Tag		 []string   `json:"tag"`
-	xLoc     float64    `json:"xloc"`
-    yLoc     float64    `jsonL"yloc"`
+	XLoc     float64    `json:"xloc"`
+    YLoc     float64    `json:"yloc"`
 }
 
 // sensors slice to store initial sensor data
 var sensors = []sensor {
-    {Name: "Sensor_1", Tag: []string{"tag1"}, xLoc: 60.00, yLoc: 90.00},
-    {Name: "Sensor_2", Tag: []string{"tag_2"}, xLoc: 0.00, yLoc: 0.00},
-    {Name: "Sensor_3", Tag: []string{"tag1", "tag2"}, xLoc: 137.78, yLoc: 271.98},
+    {Name: "Sensor_1", Tag: []string{"tag1"}, XLoc: 60.00, YLoc: 90.00},
+    {Name: "Sensor_2", Tag: []string{"tag_2"}, XLoc: 0.00, YLoc: 0.00},
+    {Name: "Sensor_3", Tag: []string{"tag1", "tag2"}, XLoc: 137.78, YLoc: 271.98},
 }
 
 // getSensor responds with the list of all sensors as JSON
@@ -68,8 +68,8 @@ func updateSensor(c *gin.Context) {
     for i := range sensors {
         if sensors[i].Name == sensor.Name {
             // if the sensor exists, update its info and break from the loop
-            sensors[i].xLoc = sensor.xLoc
-            sensors[i].yLoc = sensor.yLoc
+            sensors[i].XLoc = sensor.XLoc
+            sensors[i].YLoc = sensor.YLoc
             sensors[i].Tag = sensor.Tag
             found = true
             break
@@ -92,7 +92,7 @@ func getSensorByLocation(xloc float64, yloc float64) (sensor, error) {
 
     for _, sensor := range sensors {
         // calculates the distance between each sensor in the slice and the location
-        distance := distance(sensor.xLoc, sensor.yLoc, xloc, yloc)
+        distance := distance(sensor.XLoc, sensor.YLoc, xloc, yloc)
 
         if minDist == 0 || distance < minDist {
             // sets closestSensor to the sensor in the slice closest to the location
@@ -110,7 +110,6 @@ func sensorHandler(c *gin.Context) {
     // stores location from JSON payload as a float64
     xlocation, err1 := strconv.ParseFloat(c.Param("xloc"), 64)
     ylocation, err2 := strconv.ParseFloat(c.Param("yloc"), 64)
-
 
     if err1 != nil {
         // sends JSON and error message if location could not be determined
@@ -164,7 +163,7 @@ func main() {
     router := gin.Default()
     router.GET("/sensors", getSensors)
 	router.GET("/sensors/name/:name", getSensorByName)
-    router.GET("/sensors/location/:location", sensorHandler)
+    router.GET("/sensors/location/:xloc/:yloc", sensorHandler)
 	router.POST("/sensors", postSensors)
 	router.PATCH("/sensors/:name", updateSensor)
     router.Run("localhost:8080")
