@@ -40,3 +40,10 @@ To PATCH a sensor:
 
 To GET a sensor by closest location:
 `curl -X GET http://localhost:8080/sensors/location -H 'Content-Type: application/LOCATION`
+
+To DELETE a sensor by name:
+`curl -X DELETE http://localhost:8080/sensors/NAME`
+
+## Further Development
+
+The API is in working condition with all implemented endpoints functioning properly. The next steps are to include additional tests and input validation. In addition, some of the code can be rewritten for efficiency. Specifically, more complex data structures can be implemented to decrease the time complexity of some functions. Finally, the API can be connected to a frontend and database for complete functional use.

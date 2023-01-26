@@ -176,12 +176,39 @@ func getSensorByName(c *gin.Context) {
     c.IndentedJSON(http.StatusNotFound, gin.H{"message": "sensor not found"})
 }
 
+// deleteSensor takes in a JSON payload with a sensor name and deletes that sensor
+func deleteSensor(c *gin.Context) {
+    // finds and stores the sensor name from the JSON payload
+    name := c.Param("name")
+ 
+    // flag variable to check if a sensor has been found
+    found := false
+    
+    // loops through sensor slice to find sensor with corresponding name
+    for i, _ := range sensors {
+        if name == sensors[i].Name {
+            // removes the sensor from the slice and adjusts flag variable
+            sensors = append(sensors[:i], sensors[i+1:]...)
+            found = true
+        }
+    }
+ 
+    // returns JSON and message depending on whether the sensor was deleted or not
+    if found {
+        c.IndentedJSON(http.StatusOK, gin.H{"success": "Sensor deleted"})
+    } else {
+        c.IndentedJSON(http.StatusOK, gin.H{"error": "Sensor not found"})
+    }
+   
+ }
+
 func main() {
     router := gin.Default()
     router.GET("/sensors", getSensors) // GET list of all sensors
 	router.GET("/sensors/name/:name", getSensorByName) // GET specific sensor by name
     router.GET("/sensors/location", sensorHandler) // GET sensor by closest location
 	router.POST("/sensors", postSensors) // POST a new sensor
-	router.PATCH("/sensors/:name", updateSensor) // PATCH and existing sensors location
+	router.PATCH("/sensors/:name", updateSensor) // PATCH an existing sensors location
+    router.DELETE("/sensors/:name", deleteSensor) // DELETE an existing sensor
     router.Run("localhost:8080")
 }
