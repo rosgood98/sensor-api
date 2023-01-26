@@ -9,22 +9,12 @@ import (
 )
 
 type coordinate struct {
-    x       float64   `json:"x"`
-    y       float64   `json:"y"`
-}
-
-var coord1 coordinate
-var coord2 coordinate
-var coord3 coordinate
-
-func init() {
-    coord1 = coordinate{x: 60.00, y: 90.00}
-    coord2 = coordinate{x: 0, y: 0}
-    coord3 = coordinate{x: 159.12, y: 7.13}
+    X       float64   `json:"x"`
+    Y       float64   `json:"y"`
 }
 
 func distance(c1 coordinate, c2 coordinate) float64 {
-    return math.Sqrt(math.Pow((c2.x - c1.x), 2) + math.Pow((c2.y - c1.y), 2))
+    return math.Sqrt(math.Pow((c2.X - c1.X), 2) + math.Pow((c2.Y - c1.Y), 2))
 }
 
 // sensor represents data about a sensor
@@ -37,9 +27,9 @@ type sensor struct {
 
 // sensors slice to store initial sensor data
 var sensors = []sensor {
-    {Name: "Sensor_1", Tag: []string{"tag1"}, Location: coord1},
-    {Name: "Sensor_2", Tag: []string{"tag_2"}, Location: coord2},
-    {Name: "Sensor_3", Tag: []string{"tag1", "tag2"}, Location: coord3},
+    {Name: "Sensor_1", Tag: []string{"tag1"}, Location: coordinate{X: 60.00, Y: 90.00}},
+    {Name: "Sensor_2", Tag: []string{"tag_2"}, Location: coordinate{X: 0, Y: 0}},
+    {Name: "Sensor_3", Tag: []string{"tag1", "tag2"}, Location: coordinate{X: 159.12, Y: 7.13}},
 }
 
 // getSensor responds with the list of all sensors as JSON
@@ -174,7 +164,7 @@ func main() {
     router := gin.Default()
     router.GET("/sensors", getSensors)
 	router.GET("/sensors/name/:name", getSensorByName)
-    router.GET("/sensors/location/:location", sensorHandler)
+    router.GET("/sensors/location/:coordinate", sensorHandler)
 	router.POST("/sensors", postSensors)
 	router.PATCH("/sensors/:name", updateSensor)
     router.Run("localhost:8080")
