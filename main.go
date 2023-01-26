@@ -182,24 +182,19 @@ func deleteSensor(c *gin.Context) {
     name := c.Param("name")
  
     // flag variable to check if a sensor has been found
-    found := false
+    //found := false
     
     // loops through sensor slice to find sensor with corresponding name
     for i, _ := range sensors {
         if name == sensors[i].Name {
             // removes the sensor from the slice and adjusts flag variable
             sensors = append(sensors[:i], sensors[i+1:]...)
-            found = true
+            c.IndentedJSON(http.StatusOK, gin.H{"success": "Sensor deleted"})
         }
     }
+    
+    c.IndentedJSON(http.StatusOK, gin.H{"error": "Sensor not found"})
  
-    // returns JSON and message depending on whether the sensor was deleted or not
-    if found {
-        c.IndentedJSON(http.StatusOK, gin.H{"success": "Sensor deleted"})
-    } else {
-        c.IndentedJSON(http.StatusOK, gin.H{"error": "Sensor not found"})
-    }
-   
  }
 
 func main() {
