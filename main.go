@@ -5,41 +5,23 @@ import (
     "net/http"
     "github.com/gin-gonic/gin"
     "math"
-    "encoding/json"
+    "strconv"
 )
-
-type coordinate struct {
-    x       float64   `json:"x"`
-    y       float64   `json:"y"`
-}
-
-var coord1 coordinate
-var coord2 coordinate
-var coord3 coordinate
-
-func init() {
-    coord1 = coordinate{x: 60.00, y: 90.00}
-    coord2 = coordinate{x: 0, y: 0}
-    coord3 = coordinate{x: 159.12, y: 7.13}
-}
-
-func distance(c1 coordinate, c2 coordinate) float64 {
-    return math.Sqrt(math.Pow((c2.x - c1.x), 2) + math.Pow((c2.y - c1.y), 2))
-}
 
 // sensor represents data about a sensor
 // each sensor has a name(string), tag(list of strings), and location(float64)
 type sensor struct {
-    Name     string  `json:"name"`
-	Tag		 []string `json:"tag"`
-	Location coordinate  `json:"location"`
+    Name     string     `json:"name"`
+	Tag		 []string   `json:"tag"`
+	xLoc     float64    `json:"xloc"`
+    yLoc     float64    `jsonL"yloc"`
 }
 
 // sensors slice to store initial sensor data
 var sensors = []sensor {
-    {Name: "Sensor_1", Tag: []string{"tag1"}, Location: coord1},
-    {Name: "Sensor_2", Tag: []string{"tag_2"}, Location: coord2},
-    {Name: "Sensor_3", Tag: []string{"tag1", "tag2"}, Location: coord3},
+    {Name: "Sensor_1", Tag: []string{"tag1"}, xLoc: 60.00, yLoc: 90.00},
+    {Name: "Sensor_2", Tag: []string{"tag_2"}, xLoc: 0.00, yLoc: 0.00},
+    {Name: "Sensor_3", Tag: []string{"tag1", "tag2"}, xLoc: 137.78, yLoc: 271.98},
 }
 
 // getSensor responds with the list of all sensors as JSON
@@ -86,7 +68,8 @@ func updateSensor(c *gin.Context) {
     for i := range sensors {
         if sensors[i].Name == sensor.Name {
             // if the sensor exists, update its info and break from the loop
-            sensors[i].Location = sensor.Location
+            sensors[i].xLoc = sensor.xLoc
+            sensors[i].yLoc = sensor.yLoc
             sensors[i].Tag = sensor.Tag
             found = true
             break
@@ -103,13 +86,13 @@ func updateSensor(c *gin.Context) {
 
 // getSensorByLocation takes in a location and returns the closest sensor as well as an error
 // used with sensorHandler to handle a GET request
-func getSensorByLocation(location coordinate) (sensor, error) {
+func getSensorByLocation(xloc float64, yloc float64) (sensor, error) {
     var closestSensor sensor
     var minDist float64
 
     for _, sensor := range sensors {
         // calculates the distance between each sensor in the slice and the location
-        distance := distance(sensor.Location, location)
+        distance := distance(sensor.xLoc, sensor.yLoc, xloc, yloc)
 
         if minDist == 0 || distance < minDist {
             // sets closestSensor to the sensor in the slice closest to the location
@@ -124,22 +107,25 @@ func getSensorByLocation(location coordinate) (sensor, error) {
 // sensorHandler is used with getSensorByLocation to handle a GET request
 // specific to handling GET request, validating parameters, and calling getSensorByLocation
 func sensorHandler(c *gin.Context) {
-    var location coordinate
+    // stores location from JSON payload as a float64
+    xlocation, err1 := strconv.ParseFloat(c.Param("xloc"), 64)
+    ylocation, err2 := strconv.ParseFloat(c.Param("yloc"), 64)
 
-    err := json.Unmarshal([]byte(c.Param("location")), &location)
 
-    if err != nil {
-        c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid location"})
+    if err1 != nil {
+        // sends JSON and error message if location could not be determined
+        c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid x location"})
+        return
     }
 
-    if err != nil {
+    if err2 != nil {
         // sends JSON and error message if location could not be determined
-        c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid location"})
+        c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid y location"})
         return
     }
 
     // gets closest sensor in sensor slice to the provided location in JSON payload
-    closestSensor, err := getSensorByLocation(location)
+    closestSensor, err := getSensorByLocation(xlocation, ylocation)
 
     // sends JSON and error message if closest sensor could not be found
     if err != nil {
@@ -168,6 +154,10 @@ func getSensorByName(c *gin.Context) {
     }
     // sends a JSON and error message if the sensor was not found
     c.IndentedJSON(http.StatusNotFound, gin.H{"message": "sensor not found"})
+}
+
+func distance(x1 float64, y1 float64, x2 float64, y2 float64) float64 {
+    return math.Sqrt(math.Pow((x2 - x1), 2) + math.Pow((y2 - y1), 2))
 }
 
 func main() {
