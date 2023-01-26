@@ -135,7 +135,9 @@ func getSensorByLocation(location coordinate) (sensor, error) {
 // sensorHandler is used with getSensorByLocation to handle a GET request
 // specific to handling GET request, validating parameters, and calling getSensorByLocation
 func sensorHandler(c *gin.Context) {
+
     var coord coordinate
+
 
 	if err := c.ShouldBindJSON(&coord); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
