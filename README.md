@@ -40,4 +40,4 @@ To PATCH a sensor:
 host:8080/sensors/NAME`
 
 To GET a sensor by closest location:
-`curl http://localhost:8080/sensors/location/LOCATION`
+`curl -X GET http://localhost:8080/sensors/location -H 'Content-Type: application/LOCATION`
