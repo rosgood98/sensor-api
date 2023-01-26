@@ -5,7 +5,6 @@ import (
     "net/http"
     "github.com/gin-gonic/gin"
     "math"
-    "encoding/json"
 )
 
 type coordinate struct {
@@ -98,11 +97,18 @@ func getSensorByLocation(location coordinate) (sensor, error) {
     var minDist float64
 
     for _, sensor := range sensors {
-        // calculates the distance between each sensor in the slice and the location
-        distance := distance(sensor.Location, location)
+        if sensor.Location.X == location.Y && sensor.Location.Y == location.Y {
+            closestSensor = sensor
+            return closestSensor, nil
+        }
+    }
 
+    minDist = distance(sensors[0].Location, location)
+
+    // identifies sensor in slice closest to the provided slice
+    for _, sensor := range sensors {
+        distance := distance(sensor.Location, location)
         if minDist == 0 || distance < minDist {
-            // sets closestSensor to the sensor in the slice closest to the location
             closestSensor = sensor
             minDist = distance
         } 
@@ -115,7 +121,7 @@ func getSensorByLocation(location coordinate) (sensor, error) {
 // specific to handling GET request, validating parameters, and calling getSensorByLocation
 func sensorHandler(c *gin.Context) {
     var location coordinate
-
+    /*
     err := json.Unmarshal([]byte(c.Param("location")), &location)
 
     if err != nil {
@@ -125,6 +131,11 @@ func sensorHandler(c *gin.Context) {
     if err != nil {
         // sends JSON and error message if location could not be determined
         c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid location"})
+        return
+    }
+    */
+    if err := c.ShouldBindJSON(&location); err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "Invalid request body"})
         return
     }
 
