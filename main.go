@@ -7,16 +7,20 @@ import (
     "math"
 )
 
+// creates a struct to represent a sensor's location
+// each sensor has an x and y coordinate
 type coordinate struct {
     X       float64   `json:"x"`
     Y       float64   `json:"y"`
 }
 
+// distance calculates the euclidean distance between two coordinates
 func distance(c1 coordinate, c2 coordinate) float64 {
+    // x dist
     dx := c2.X - c1.X
+    // y dist
     dy := c2.Y - c1.Y
     return math.Sqrt(math.Pow(dx, 2) + math.Pow(dy, 2))
-
 }
 
 // sensor represents data about a sensor
@@ -57,6 +61,7 @@ func postSensors(c *gin.Context) {
 
     // adds the new sensor to the slice of sensors
     sensors = append(sensors, newSensor)
+
     // sends Indented JSON with successfull message and the new sensor
     c.IndentedJSON(http.StatusCreated, newSensor)
 }
@@ -66,6 +71,7 @@ func postSensors(c *gin.Context) {
 func updateSensor(c *gin.Context) {
     var sensor sensor
 
+    // binds JSON payload to a new sensor called sensor
     if err := c.ShouldBindJSON(&sensor); err != nil {
         c.JSON(http.StatusNotFound, gin.H{"error": "Invalid request body"})
         return
@@ -96,10 +102,14 @@ func updateSensor(c *gin.Context) {
 // getSensorByLocation takes in a location and returns the closest sensor as well as an error
 // used with sensorHandler to handle a GET request
 func getSensorByLocation(location coordinate) (sensor, error) {
+
+    // initializes closestSensor to first sensor in slice
     var closestSensor sensor
     closestSensor = sensors[0]
+    
     var minDist float64
 
+    // loops through slice to see if any sensors have the exact same location as the provided location
     for _, sensor := range sensors {
         if sensor.Location.X == location.X && sensor.Location.Y == location.Y {
             closestSensor = sensor
@@ -107,9 +117,10 @@ func getSensorByLocation(location coordinate) (sensor, error) {
         }
     }
 
+    // sets minDist to the distance between the first sensor and location
     minDist = distance(sensors[0].Location, location)
 
-    // identifies sensor in slice closest to the provided slice
+    // loops through slice to find the closest sensor the location if none match location exactly
     for _, sensor := range sensors {
         distance := distance(sensor.Location, location)
         if minDist == 0 || distance < minDist {
@@ -165,10 +176,10 @@ func getSensorByName(c *gin.Context) {
 
 func main() {
     router := gin.Default()
-    router.GET("/sensors", getSensors)
-	router.GET("/sensors/name/:name", getSensorByName)
-    router.GET("/sensors/location", sensorHandler)
-	router.POST("/sensors", postSensors)
-	router.PATCH("/sensors/:name", updateSensor)
+    router.GET("/sensors", getSensors) // GET list of all sensors
+	router.GET("/sensors/name/:name", getSensorByName) // GET specific sensor by name
+    router.GET("/sensors/location", sensorHandler) // GET sensor by closest location
+	router.POST("/sensors", postSensors) // POST a new sensor
+	router.PATCH("/sensors/:name", updateSensor) // PATCH and existing sensors location
     router.Run("localhost:8080")
 }
