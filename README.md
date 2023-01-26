@@ -39,4 +39,4 @@ To PATCH a sensor:
 `curl -X PATCH -H "Content-Type: application/json" -d '{"name": "NAME", "tag": ["tag1", "tag2"], "location": LOCATION}' http://localhost:8080/sensors/NAME`
 
 To GET a sensor by closest location:
-`curl http://localhost:8080/sensors/location/LOCATION`
+`curl -X GET http://localhost:8080/sensors/location -H 'Content-Type: application/LOCATION`
