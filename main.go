@@ -5,6 +5,7 @@ import (
     "net/http"
     "github.com/gin-gonic/gin"
     "math"
+    //"encoding/json"
 )
 
 type coordinate struct {
@@ -120,27 +121,15 @@ func getSensorByLocation(location coordinate) (sensor, error) {
 // sensorHandler is used with getSensorByLocation to handle a GET request
 // specific to handling GET request, validating parameters, and calling getSensorByLocation
 func sensorHandler(c *gin.Context) {
-    var location coordinate
-    /*
-    err := json.Unmarshal([]byte(c.Param("location")), &location)
+    var coord coordinate
 
-    if err != nil {
-        c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid location"})
-    }
-
-    if err != nil {
-        // sends JSON and error message if location could not be determined
-        c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid location"})
-        return
-    }
-    */
-    if err := c.ShouldBindJSON(&location); err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "Invalid request body"})
+	if err := c.ShouldBindJSON(&coord); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
         return
     }
 
     // gets closest sensor in sensor slice to the provided location in JSON payload
-    closestSensor, err := getSensorByLocation(location)
+    closestSensor, err := getSensorByLocation(coord)
 
     // sends JSON and error message if closest sensor could not be found
     if err != nil {
@@ -175,7 +164,7 @@ func main() {
     router := gin.Default()
     router.GET("/sensors", getSensors)
 	router.GET("/sensors/name/:name", getSensorByName)
-    router.GET("/sensors/location/:coordinate", sensorHandler)
+    router.GET("/sensors/location", sensorHandler)
 	router.POST("/sensors", postSensors)
 	router.PATCH("/sensors/:name", updateSensor)
     router.Run("localhost:8080")
