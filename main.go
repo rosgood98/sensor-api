@@ -5,7 +5,6 @@ import (
     "net/http"
     "github.com/gin-gonic/gin"
     "math"
-    //"encoding/json"
 )
 
 type coordinate struct {
@@ -14,7 +13,10 @@ type coordinate struct {
 }
 
 func distance(c1 coordinate, c2 coordinate) float64 {
-    return math.Sqrt(math.Pow((c2.X - c1.X), 2) + math.Pow((c2.Y - c1.Y), 2))
+    dx := c2.X - c1.X
+    dy := c2.Y - c1.Y
+    return math.Sqrt(math.Pow(dx, 2) + math.Pow(dy, 2))
+
 }
 
 // sensor represents data about a sensor
@@ -95,10 +97,11 @@ func updateSensor(c *gin.Context) {
 // used with sensorHandler to handle a GET request
 func getSensorByLocation(location coordinate) (sensor, error) {
     var closestSensor sensor
+    closestSensor = sensors[0]
     var minDist float64
 
     for _, sensor := range sensors {
-        if sensor.Location.X == location.Y && sensor.Location.Y == location.Y {
+        if sensor.Location.X == location.X && sensor.Location.Y == location.Y {
             closestSensor = sensor
             return closestSensor, nil
         }
