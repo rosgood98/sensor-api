@@ -1,26 +1,45 @@
 package main // identifies that main.go is a standalone file and not part of a package
 
-// imports required library
+// imports required libraries
 import (
     "net/http"
     "github.com/gin-gonic/gin"
     "math"
-    "strconv"
+    "encoding/json"
 )
+
+type coordinate struct {
+    x       float64   `json:"x"`
+    y       float64   `json:"y"`
+}
+
+var coord1 coordinate
+var coord2 coordinate
+var coord3 coordinate
+
+func init() {
+    coord1 = coordinate{x: 60.00, y: 90.00}
+    coord2 = coordinate{x: 0, y: 0}
+    coord3 = coordinate{x: 159.12, y: 7.13}
+}
+
+func distance(c1 coordinate, c2 coordinate) float64 {
+    return math.Sqrt(math.Pow((c2.x - c1.x), 2) + math.Pow((c2.y - c1.y), 2))
+}
 
 // sensor represents data about a sensor
 // each sensor has a name(string), tag(list of strings), and location(float64)
 type sensor struct {
     Name     string  `json:"name"`
 	Tag		 []string `json:"tag"`
-	Location float64  `json:"location"`
+	Location coordinate  `json:"location"`
 }
 
 // sensors slice to store initial sensor data
-var sensors = []sensor{
-    {Name: "Sensor_1", Tag: []string{"tag1"}, Location: 30.00},
-    {Name: "Sensor_2", Tag: []string{"tag_2"}, Location: 60.00},
-    {Name: "Sensor_3", Tag: []string{"tag1", "tag2"}, Location: 90.00},
+var sensors = []sensor {
+    {Name: "Sensor_1", Tag: []string{"tag1"}, Location: coord1},
+    {Name: "Sensor_2", Tag: []string{"tag_2"}, Location: coord2},
+    {Name: "Sensor_3", Tag: []string{"tag1", "tag2"}, Location: coord3},
 }
 
 // getSensor responds with the list of all sensors as JSON
@@ -84,13 +103,13 @@ func updateSensor(c *gin.Context) {
 
 // getSensorByLocation takes in a location and returns the closest sensor as well as an error
 // used with sensorHandler to handle a GET request
-func getSensorByLocation(location float64) (sensor, error) {
+func getSensorByLocation(location coordinate) (sensor, error) {
     var closestSensor sensor
     var minDist float64
 
     for _, sensor := range sensors {
         // calculates the distance between each sensor in the slice and the location
-        distance := math.Abs(sensor.Location - location)
+        distance := distance(sensor.Location, location)
 
         if minDist == 0 || distance < minDist {
             // sets closestSensor to the sensor in the slice closest to the location
@@ -105,8 +124,13 @@ func getSensorByLocation(location float64) (sensor, error) {
 // sensorHandler is used with getSensorByLocation to handle a GET request
 // specific to handling GET request, validating parameters, and calling getSensorByLocation
 func sensorHandler(c *gin.Context) {
-    // stores location from JSON payload as a string
-    location, err := strconv.ParseFloat(c.Param("location"), 64)
+    var location coordinate
+
+    err := json.Unmarshal([]byte(c.Param("location")), &location)
+
+    if err != nil {
+        c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid location"})
+    }
 
     if err != nil {
         // sends JSON and error message if location could not be determined
