@@ -138,7 +138,6 @@ func sensorHandler(c *gin.Context) {
 
     var coord coordinate
 
-
 	if err := c.ShouldBindJSON(&coord); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
         return
@@ -192,7 +191,7 @@ func deleteSensor(c *gin.Context) {
             c.IndentedJSON(http.StatusOK, gin.H{"success": "Sensor deleted"})
         }
     }
-    
+
     c.IndentedJSON(http.StatusOK, gin.H{"error": "Sensor not found"})
  
  }
@@ -203,7 +202,7 @@ func main() {
 	router.GET("/sensors/name/:name", getSensorByName) // GET specific sensor by name
     router.GET("/sensors/location", sensorHandler) // GET sensor by closest location
 	router.POST("/sensors", postSensors) // POST a new sensor
-	router.PATCH("/sensors/:name", updateSensor) // PATCH an existing sensors location
+	router.PATCH("/sensors/:name", updateSensor) // PATCH an existing sensor
     router.DELETE("/sensors/:name", deleteSensor) // DELETE an existing sensor
     router.Run("localhost:8080")
 }
