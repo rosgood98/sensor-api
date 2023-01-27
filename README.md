@@ -33,13 +33,13 @@ To GET a specific sensor by name:
 `curl http://localhost:8080/sensors/name/NAME`
 
 To POST a sensor:
-`curl -X POST -H "Content-Type: application/json" -d '{"name": "NAME", "tag": ["tag1"], "location": LOCATION}' http://localhost:8080/sensors`
+`curl -X POST -H "Content-Type: application/json" -d '{"name": "NAME", "tag": ["TAG1"], "location": LOCATION}' http://localhost:8080/sensors`
 
 To PATCH a sensor:
-`curl -X PATCH -H "Content-Type: application/json" -d '{"name": "NAME", "tag": ["tag1", "tag2"], "location": LOCATION}' http://localhost:8080/sensors/NAME`
+`curl -X PATCH -H "Content-Type: application/json" -d '{"name": "NAME", "tag": ["TAG1", "TAG2"], "location": LOCATION}' http://localhost:8080/sensors/NAME`
 
 To GET a sensor by closest location:
-`curl -X GET http://localhost:8080/sensors/location -H 'Content-Type: application/LOCATION`
+`curl -X GET -d '{"x": X, "y": Y}' http://localhost:8080/sensors/location`
 
 To DELETE a sensor by name:
 `curl -X DELETE http://localhost:8080/sensors/NAME`
